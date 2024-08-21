@@ -20,22 +20,32 @@
         const ROWS = 10;
         const COLUMNS = 3;
 
-        const range = length => Array.from({ length }, (_i) => i);
-
+        const range = length => Array.from({ length }, (_, i) => i);
         const renderSpreadSheet = () => {
-            const $table = $('table')
-            const $head = $('thead')
-            const $body = $('tbody')
+            const $table = $('table');
+            const $head = $('thead');
+            const $body = $('tbody');
 
-            const headerHtml = `<tr>
-                <th></th>
-                ${range(COLUMNS).map(i =>`<th> ${i}</th>`).join('')}
-                </tr>`
-            $head.innerHTML = headerHtml;
-
-            const bodyHTML = `<tr>
+            const headerHtml = `
+                <tr>
+                    <th></th>
+                    ${range(COLUMNS).map(i =>`<th> ${i}</th>`).join('')}
                 </tr>
             `
+            $head.innerHTML = headerHtml;
+
+            const bodyHTML = range(ROWS).map((row) => `
+                <tr>
+                    <td>${row + 1}</td>
+                    ${range(COLUMNS).map(column =>`
+                        <td data-x"${column}" data-y="${row}">
+                            <span></span>
+                            <input type="text" value=""/>
+                        </td>`).join('')
+                    }
+                </tr>`).join('')
+
+            $body.innerHTML = bodyHTML;
 
         }
         renderSpreadSheet();
