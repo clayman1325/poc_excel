@@ -47,10 +47,14 @@
 
         const ROWS = 10;
         const COLUMNS = 10;
-        const FIRST_CHAR_CODE = 65
-        const getColumnValue = (i) => String.fromCharCode(i + FIRST_CHAR_CODE);
+        const FIRST_CHAR_CODE = 65;
 
+        const cellValue = (value) => { return { computedValue: 0, value: value }};
+        const getColumnValue = (i) => String.fromCharCode(i + FIRST_CHAR_CODE);
         const range = length => Array.from({ length }, (_, i) => i);
+
+        let STATE = range(COLUMNS).map(column => range(ROWS).map((row) => cellValue(row)))
+        console.log(" state ", STATE)
         const renderSpreadSheet = () => {
             const $table = $('table');
             const $head = $('thead');
@@ -69,8 +73,8 @@
                     <td>${row + 1}</td>
                     ${range(COLUMNS).map(column =>`
                         <td data-x"${column}" data-y="${row}">
-                            <span></span>
-                            <input type="text" value=""/>
+                            <span>${STATE[column][row].value}, ${STATE[column][column].value}</span>
+                            <input type="text" value=${STATE[column][row].computedValue}/>
                         </td>`).join('')
                     }
                 </tr>`).join('')
