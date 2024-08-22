@@ -8,9 +8,37 @@
         body {
             font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
         }
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
         img {
             max-width: 20px;
             height: auto;
+        }
+        table{
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: #eee;
+        }
+
+        tr td:first-child {
+            background-color: #eee;
+        }
+        tr td {
+            border: 1px solid #ccc;
+            font-weight: normal;
+            font-size: 12px;
+            text-align: center;
+            vertical-align: middle;
+            width: 64px;
+        }
+        input {
+            border: 0;
+            opacity: 0;
+            pointer-events: none;
+            width: 100%;
         }
     </style>
     <script type="module">
@@ -18,7 +46,9 @@
         const $$ = el => document.querySelector(el);
 
         const ROWS = 10;
-        const COLUMNS = 3;
+        const COLUMNS = 10;
+        const FIRST_CHAR_CODE = 65
+        const getColumnValue = (i) => String.fromCharCode(i + FIRST_CHAR_CODE);
 
         const range = length => Array.from({ length }, (_, i) => i);
         const renderSpreadSheet = () => {
@@ -29,7 +59,7 @@
             const headerHtml = `
                 <tr>
                     <th></th>
-                    ${range(COLUMNS).map(i =>`<th> ${i}</th>`).join('')}
+                    ${range(COLUMNS).map(i => `<th> ${getColumnValue(i)}</th>`).join('')}
                 </tr>
             `
             $head.innerHTML = headerHtml;
@@ -52,7 +82,7 @@
     </script>
 </head>
 <body>
-    <img src="" alt="excel file"/>
+    <img src="data:image/png;base64,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" alt="excel file"/>
 
     <table>
         <thead>
