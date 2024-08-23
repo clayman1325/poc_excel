@@ -83,7 +83,7 @@
 
         function updateCell ({x,y, value}){
             const newState = structuredClone(STATE);
-            const constants = generateCellsConstants(newState);
+            let constants = generateCellsConstants(newState);
 
 
             const cell = newState[x][y];
@@ -92,6 +92,10 @@
             cell.value = value;
 
             newState[x][y] = cell;
+
+            // constants = generateCellsConstants(newState);
+            computeAllCells(newState, constants);
+
             STATE = newState;
 
             renderSpreadSheet();
@@ -102,27 +106,44 @@
                     const letter = getColumnValue(x)
                     const cellId = `${letter}${y + 1}`;
 
-                    return `const ${cellId} = ${cell.computedValue}`;
+                    return `const ${cellId} = ${cell.value}`;
                 }).join('\n')
             }).join('\n')
         }
 
         function computedValue (value, constants) {
+            console.log("value of input  ", typeof value, value)
+            if (typeof value === 'number') return value;
             if (!value.startsWith("=")) return value;
-
+            
             const formula = value.slice(1);
             
             let computedValue;
 
             try {
-                // console.log("state", formula, constants  )
-                return computedValue = eval(`(() => {
+                console.log("state!!!!!!!!!!!!!!!!!!!   ", formula)
+
+                const getFormula = `(() => {
                     ${constants}
                     return ${formula}
-                })()`);
+                })()`
+                console.log("state!!!!!!!!!!!!!!!!!!!2   ", getFormula)
+                return computedValue = eval(getFormula);
             } catch (e) {
+                console.log(e)
                 return computedValue = '!ERROR: ' + e.message; 
             }
+        }
+
+        function computeAllCells(cells , constants) {
+            return cells.map((row, x) => {
+                return row.map((cell, y) => {
+                    const letter = getColumnValue(x)
+                    const cellId = `${letter}${y + 1}`;
+
+                    cell.computedValue = computedValue(cell.value, constants);
+                }).join('\n')
+            }).join('\n')
         }
 
         const renderSpreadSheet = () => {
