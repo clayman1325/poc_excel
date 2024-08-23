@@ -75,11 +75,55 @@
         const COLUMNS = 10;
         const FIRST_CHAR_CODE = 65;
 
-        const cellValue = (value) => { return { computedValue: 0, value: value }};
+        const cellValue = (value) => { return { computedValue: 0, value: 0 }};
         const getColumnValue = (i) => String.fromCharCode(i + FIRST_CHAR_CODE);
         const range = length => Array.from({ length }, (_, i) => i);
 
-        let STATE = range(COLUMNS).map(column => range(ROWS).map((row) => cellValue(row)))
+        let STATE = range(COLUMNS).map(column => range(ROWS).map((row) => cellValue(row)));
+
+        function updateCell ({x,y, value}){
+            const newState = structuredClone(STATE);
+            const constants = generateCellsConstants(newState);
+
+
+            const cell = newState[x][y];
+
+            cell.computedValue = computedValue(value, constants);
+            cell.value = value;
+
+            newState[x][y] = cell;
+            STATE = newState;
+
+            renderSpreadSheet();
+        }
+        function generateCellsConstants (cells) {
+            return cells.map((row, x) => {
+                return row.map((cell, y) => {
+                    const letter = getColumnValue(x)
+                    const cellId = `${letter}${y + 1}`;
+
+                    return `const ${cellId} = ${cell.computedValue}`;
+                }).join('\n')
+            }).join('\n')
+        }
+
+        function computedValue (value, constants) {
+            if (!value.startsWith("=")) return value;
+
+            const formula = value.slice(1);
+            
+            let computedValue;
+
+            try {
+                // console.log("state", formula, constants  )
+                return computedValue = eval(`(() => {
+                    ${constants}
+                    return ${formula}
+                })()`);
+            } catch (e) {
+                return computedValue = '!ERROR: ' + e.message; 
+            }
+        }
 
         const renderSpreadSheet = () => {
             const headerHtml = `
@@ -95,8 +139,8 @@
                     <td>${row + 1}</td>
                     ${range(COLUMNS).map(column =>`
                         <td data-x="${column}" data-y="${row}">
-                            <span>${STATE[column][row].value}, ${STATE[column][column].value}</span>
-                            <input type="text" value=${STATE[column][row].computedValue}/>
+                            <span>${STATE[column][row].computedValue}</span>
+                            <input type="text" value=${STATE[column][row].value}>
                         </td>`).join('')
                     }
                 </tr>`).join('')
@@ -105,7 +149,6 @@
 
         }
         $body.addEventListener('click', event => {
-
             const td = event.target.closest('td')
 
             if (!td) return
@@ -117,15 +160,19 @@
             console.log(y,x, span, input);
             const end = input.value.length;
             input.setSelectionRange(end, 0);
-            input.focus()
+            input.focus();
 
-            // input.addEventListener('blur', () => {
-            //     console.log({ value: input.value, state: STATE[x][y].value})
+            addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') input.blur();
+            })
 
-            //     if(input.value === STATE[x][y].value) return;
+            input.addEventListener('blur', () => {
+                console.log({ value: input.value, state: STATE[x][y].value})
+                
+                if(input.value === STATE[x][y].value) return;
 
-            //     updateCell({ x, y, value: input.value })
-            // }, {once: true})
+                updateCell({ x, y, value: input.value })
+            }, {once: true})
         })
         renderSpreadSheet();
     </script>
