@@ -231,10 +231,11 @@
                 console.log("copy ")
                 if (selectedIndex !== null) {
                     const newState = structuredClone(STATE);
-                    const values = range(ROWS).map(row => {
+                    const columnValues = range(ROWS).map(row => {
                         return newState[selectedIndex][row].computedValue
                     })
-                    event.clipboardData.setData('text/plain', columnValues.join('n'))
+                    event.clipboardData.setData('text/plain', columnValues.join('\n'))
+                    event.preventDefault()
                 }
             })
         })
@@ -252,6 +253,5 @@
 
         </tbody>
     </table>
-
 </body>
 </html>
